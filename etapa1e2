@@ -1,0 +1,35 @@
+/* 
+    Equipe: 
+        Júlio César Almeida Soares - Subturma D (Líder) 
+        Etapa 1e2
+*/
+
+var xP = 200;
+var yP = 370;
+function setup() {
+  createCanvas(400, 400);
+}
+
+function draw() {
+  background(0);
+  fill(0, 100, 10)
+  ellipse(xP, yP, 50, 50)
+  fill(200, 0, 0)
+  rect(175, 0, 50, 50)
+  rect(0, 0, 50, 50)
+  rect(350, 0, 50, 50)
+  
+  //movimento do player
+  if(keyIsDown(UP_ARROW)){
+     yP -= 5;
+     }
+   if(keyIsDown(DOWN_ARROW)){
+     yP += 5;
+     }
+   if(keyIsDown(LEFT_ARROW)){
+     xP -= 5;
+     }
+   if(keyIsDown(RIGHT_ARROW)){
+     xP += 5;
+     }
+}
