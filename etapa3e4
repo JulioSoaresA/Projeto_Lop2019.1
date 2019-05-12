@@ -1,0 +1,78 @@
+/* 
+    Equipe: 
+        Júlio César Almeida Soares - Subturma D (Líder) 
+        Etapa 3e4
+*/
+
+var xP = 200, yP = 370; //coordenadas do player
+var xI1 = 0, xI2 = 0, xI3 = 0, yI1 = -100, yI2 = -150, yI3 = -120; //coordenadas dos inimigos
+var xD, yD; //coordenadas do diaparo
+var estadoDisparo = false;
+function setup() {
+  createCanvas(500, 400);
+}
+
+function draw() {
+  background(0);
+  fill(0, 100, 10)
+  
+  //player
+  ellipse(xP, yP, 50, 50)
+  fill(200, 0, 0)
+  
+  //inimigos
+  rect(xI1 + 175, yI1, 50, 50)
+  rect(xI2, yI2, 50, 50)
+  rect(xI3 + 350, yI3, 50, 50)
+  
+  //movimento do inimigo
+  yI1 += 2
+  yI2 += 2
+  yI3 += 2
+  if(yI1 > 400)
+  {
+    yI1 = -random(200)
+    xI1 = random(350)
+  }
+  if(yI2 > 400)
+  {
+    yI2 = -random(200)
+    xI2 = random(350)
+  }
+  if(yI3 > 400)
+  {
+    yI3 = -random(200)
+    xI3 = random(350)
+  }
+  
+  //movimento do player
+  if(keyIsDown(UP_ARROW)){
+     yP -= 5;
+     }
+   if(keyIsDown(DOWN_ARROW)){
+     yP += 5;
+     }
+   if(keyIsDown(LEFT_ARROW)){
+     xP -= 5;
+     }
+   if(keyIsDown(RIGHT_ARROW)){
+     xP += 5;
+     }
+  //projetil
+  if(keyIsDown(32) && !estadoDisparo)
+  {
+    xD = xP;
+    yD = yP;
+    estadoDisparo = true;
+  }
+  if(estadoDisparo)
+  {
+    fill(200)
+    ellipse(xD, yD, 10, 15)
+    yD -= 5;
+    if(yD < 0)
+    {
+      estadoDisparo = false;
+    }
+  }
+}
