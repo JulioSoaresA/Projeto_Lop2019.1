@@ -1,0 +1,142 @@
+/* 
+    Equipe: 
+        Júlio César Almeida Soares - Subturma D (Líder) 
+        Etapa 5e6
+*/
+
+var xP = 200, yP = 370; //coordenadas do player
+var xI1 = 175, xI2 = 0, xI3 = 350, yI1 = -100, yI2 = -150, yI3 = -120; //coordenadas dos inimigos
+var xD, yD; //coordenadas do diaparo
+var estadoDisparo = false;
+var vida = 3, pontuacao = 0, nivel = 0; //informações do jogo
+function setup() {
+  createCanvas(500, 400);
+}
+
+function draw() {
+  background(0);
+  fill(0, 100, 10)
+  
+  //player
+  ellipse(xP, yP, 50, 50)
+  fill(200, 0, 0)
+  
+  //inimigos
+  rect(xI1, yI1, 50, 50)
+  rect(xI2, yI2, 50, 50)
+  rect(xI3, yI3, 50, 50)
+  
+  //movimento do inimigo
+  yI1 += 2;
+  yI2 += 2;
+  yI3 += 2;
+  if(yI1 > 400)
+  {
+    yI1 = -random(200)
+    xI1 = random(350)
+  }
+  if(yI2 > 400)
+  {
+    yI2 = -random(200)
+    xI2 = random(350)
+  }
+  if(yI3 > 400)
+  {
+    yI3 = -random(200)
+    xI3 = random(350)
+  }
+  
+  //movimento do player
+  if(keyIsDown(UP_ARROW)){
+     yP -= 5;
+     }
+   if(keyIsDown(DOWN_ARROW)){
+     yP += 5;
+     }
+   if(keyIsDown(LEFT_ARROW)){
+     xP -= 5;
+     }
+   if(keyIsDown(RIGHT_ARROW)){
+     xP += 5;
+     }
+  //projetil
+  if(keyIsDown(32) && !estadoDisparo)
+  {
+    xD = xP;
+    yD = yP;
+    estadoDisparo = true;
+  }
+  if(estadoDisparo)
+  {
+    fill(200)
+    ellipse(xD, yD, 10, 10)
+    yD -= 5;
+    if(yD < 0)
+    {
+      estadoDisparo = false;
+    }
+  }
+  
+  //informaçoes do jogo
+  fill(200)
+  text("Vidas: "+vida, 10,375)
+  text("Pontuação: "+pontuacao, 220, 12)
+  text("Nível: "+nivel, 10, 390)
+  
+  //colisoes com o player
+  if(dist(xI1+25,yI1+25,xP,yP) < 25+25)
+     {
+       xP = 200;
+       yP = 370;
+       yI1 = -random(200);
+       xI1 = random(350);
+       vida--;
+     }
+   if(dist(xI2+25,yI2+25,xP,yP) < 25+25)
+     {
+       xP = 200;
+       yP = 370;
+       yI2 = -random(200);
+       xI2 = random(350);
+       vida--;
+     }
+  if(dist(xI3+25,yI3+25,xP,yP) < 25+25)
+     {
+       xP = 200;
+       yP = 370;
+       yI3 = -random(200);
+       xI3 = random(350);
+       vida--
+     }
+  //colisao do disparo
+  if(dist(xI1+25, yI1+25, xD, yD) < 5+25)
+  {
+    xD = 0;
+    yD = 0;
+    yI1 = -random(200);
+    xI1 = random(350);
+    pontuacao++;
+  }
+  if(dist(xI2+25, yI2+25, xD, yD) < 5+25)
+  {
+    xD = 0;
+    yD = 0;
+    yI2 = -random(200);
+    xI2 = random(350);
+    pontuacao++;
+  }
+  if(dist(xI3+25, yI3+25, xD, yD) < 5+25)
+  {
+    xD = 0;
+    yD = 0;
+    yI3 = -random(200);
+    xI3 = random(350);
+    pontuacao++;
+  }
+  if(vida === 0)
+  {
+    vida = 3;
+    pontuacao = 0;
+    nivel = 0;
+  }
+}
