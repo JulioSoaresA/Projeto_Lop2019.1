@@ -1,0 +1,264 @@
+/* 
+    Equipe: 
+        Júlio César Almeida Soares - Subturma D (Líder) 
+        Etapa 7e8
+*/
+
+var xP = 200, yP = 370; //coordenadas do player
+var xI = [], yI = []; //coordenadas dos inimigos
+var xD, yD; //coordenadas do diaparo
+var xE = [], yE = []; //estrelas
+var xB = [], yB = []; //bonus
+var qtE = 5; //quantidade de estrelas
+var xB = 200, yB = -100; //coordenadas bonus
+var qt = 3; //quantidade de inimigos
+var qtB = 1; //quantidade de bonus
+var estadoDisparo = false;
+var aumentarNivel = true;
+var tempo = 0;
+var vcorR = []; 
+var vcorG = [];
+var vcorB = [];
+var velI = []; //velocidade dos inimigos
+var velE = []; //velocidade das estrelas
+var velB = []; //velocidade do bonus
+var barreiraDePontos = 100;
+var auxNivel = 101;
+var vida = 3, pontuacao = 0, nivel = 0; //informações do jogo
+function setup() {
+  createCanvas(500, 400);
+  for(i = 0;i < qt; i++){
+    xI[i] = random(0,475); //posição inicial dos inimigos
+    yI[i] = -random(50,100);
+    velI[i] = 2;
+    vcorR[i] = random(0,255);
+    vcorG[i] = random(0,255);
+    vcorB[i] = random(0,255);
+  }
+  for(j = 0; j < qtE; j++){
+    xE[j] = random(0, 500); // posição inicial das estrelas
+    yE[j] = -random(0, 100);
+    velE[j] = 2+random(0,5);
+  }
+  for(b = 0; b < qtB; b++){
+    xB[b] = random(0,400);
+    yB[b] = -random(0,10);
+    velB[b] = 10
+  }
+  
+}
+
+function draw() {
+  background(0);
+  
+  //estrelas
+  for(j = 0; j < qtE; j++){
+    fill(220)
+    ellipse(xE[j], yE[j],5,5);
+    yE[j] = yE[j] + velE[j];
+    if(yE[j] > 400){
+      yE[j] = -random(0,100);
+      xE[j] = random(0, 500);
+    }
+  }
+  
+  //player
+   fill(0, 100, 10)
+  ellipse(xP, yP, 50, 50)
+  
+  //inimigos
+  for(i = 0; i < qt; i++){
+    fill(vcorR[i], vcorG[i], vcorB[i])
+    rect(xI[i], yI[i], 50, 50)
+    //movimento do inimigo
+    yI[i] = yI[i] + velI[i];
+    if(yI[i] > 400)
+    {
+      yI[i] = -random(50,100);
+      xI[i] = random(0,470);
+      vcorR[i] = random(0,255);
+      vcorG[i] = random(0,255);
+      vcorB[i] = random(0,255);
+    }
+   }
+  
+  //bonus
+  for(b = 0; b < qtB; b++){
+    fill(220)
+    ellipse(xB[b], yB[b], 50, 50);
+    yB[b] = yB[b] + velB[b];
+    if(yB[b] > 400){
+      xB[b] = random(0,500);
+      yB[b] = -random(0,100);
+      }
+  }
+  
+  //movimento do player
+  if(keyIsDown(UP_ARROW)){
+     yP -= 6;
+     }
+   if(keyIsDown(DOWN_ARROW)){
+     yP += 6;
+     }
+   if(keyIsDown(LEFT_ARROW)){
+     xP -= 6;
+     }
+   if(keyIsDown(RIGHT_ARROW)){
+     xP += 6;
+     }
+  //projetil
+  if(keyIsDown(32) && !estadoDisparo)
+  {
+    xD = xP;
+    yD = yP;
+    estadoDisparo = true;
+  }
+  if(estadoDisparo)
+  {
+    fill(200)
+    ellipse(xD, yD, 10, 10)
+    yD -= 8;
+    if(yD < 0 )
+    {
+      estadoDisparo = false;
+      xD = xP;
+      yD = yP;
+    }
+  }
+  
+  //informaçoes do jogo
+  fill(200)
+  text("Vidas: "+vida, 10,375)
+  text("Pontuação: "+pontuacao, 220, 12)
+  text("Nível: "+nivel, 10, 390)
+  
+  //colisoes com o player
+  for(i = 0; i < qt; i++){
+    if(dist(xI[i]+25,yI[i]+25,xP,yP) < 25+25)
+       {
+         xP = 200;
+         yP = 370;
+         yI[i] = -random(50,100);
+         xI[i] = random(0,470);
+         vida--;
+        vcorR[i] = random(0,255);
+        vcorG[i] = random(0,255);
+        vcorB[i] = random(0,255);
+       }
+
+  //colisao do disparo
+    if(dist(xI[i]+25, yI[i]+25, xD, yD) < 5+25)
+    {
+      xD = 0;
+      yD = 0;
+      yI[i] = -random(50,100);
+      xI[i] = random(0,470);
+      pontuacao++;
+      vcorR[i] = random(0,255);
+      vcorG[i] = random(0,255);
+      vcorB[i] = random(0,255);
+    }
+  }
+  
+  //niveis
+  if(pontuacao > barreiraDePontos && aumentarNivel == true){
+    nivel++;
+    barreiraDePontos = barreiraDePontos + 100;
+    aumentarNivel = false;
+  }
+  if(pontuacao == auxNivel){
+    aumentarNivel = true;
+    auxNivel += 101;
+  }
+  if(nivel == 1){
+    qtE++;
+    for(i = 0; i < qt; i++){
+      velI[i] = 2+random(0,1);
+    }
+    for(j = 0; j < qtE; j++){
+      velE[j] = 2+random(1,6);
+    }
+  }
+  if(nivel == 2){
+    qtE++;
+    for(i = 0; i < qt; i++){
+      velI[i] = 2+random(1,2)
+    }
+     for(j = 0; j < qtE; j++){
+      velE[j] = 2+random(2,7);
+    }
+  }
+  if(nivel == 3){
+    qtE++;
+    for(i = 0; i < qt; i++){
+      velI[i] = 2+random(2,3)
+    }
+     for(j = 0; j < qtE; j++){
+      velE[j] = 2+random(3,8);
+    }
+  }
+  if(nivel == 4){
+    qtE++;
+    for(i = 0; i < qt; i++){
+      velI[i] = 2+random(4,5)
+    }
+     for(j = 0; j < qtE; j++){
+      velE[j] = 2+random(4,9);
+    }
+  }
+  if(nivel == 5){
+    qt++;
+    for(i = 0; i < qt; i++){
+      velI[i] = 2+random(6,7)
+    }
+     for(j = 0; j < qtE; j++){
+      velE[j] = 2+random(5,10);
+    }
+  }
+  
+  tempo++
+  text(tempo,20,100)
+  
+  if(vida <= 0)
+  {
+    clear();
+    fill(0);
+    noStroke();
+    rect(0,0,500,400);
+    fill(255,0,0);
+    text('Que pena, você é ruim. HAHAHAHAH, pressione ENTER para jogar novamente!',20,200);
+    if(keyIsDown(ENTER)){
+       vida = 3;
+       pontuacao = 0;
+       nivel = 0;
+       barreiraDePontos = 10;
+       auxNivel = 11;
+       for(i = 0;i < qt; i++){
+          xI[i] = random(0,470); //posição inicial dos inimigos
+          yI[i] = -random(50,100);
+          vcorR[i] = random(0,255);
+          vcorG[i] = random(0,255);
+          vcorB[i] = random(0,255);
+  }
+       }
+  }
+  
+ 
+  //limites do mapa
+  if(xP > 475)
+  {
+    xP = 475;
+  }
+  if(xP < 25)
+  {
+    xP = 25;
+  }
+  if(yP > 375)
+  {
+    yP = 375;
+  }
+  if(yP < 25)
+  {
+    yP = 25;
+  }
+}
