@@ -1,0 +1,508 @@
+/* 
+    Equipe: 
+        Júlio César Almeida Soares - Subturma D (Líder) 
+        Etapa 9e10
+*/
+
+var xP = 200, yP = 370; //coordenadas do player
+var xI = [], yI = []; //coordenadas dos inimigos
+var xI1 = [], yI1 = []; //coordenadas do inimigos nivel 1
+var xI2 = [], yI2 = []; //coordenadas do inimigo nivel 2
+var xD = [], yD = []; //coordenadas do disparo
+var tirosAtivos = [], qtTiros =  3, tempoTiro = -1; //caracteristicas do disparo
+var xE = [], yE = [];//estrelas
+var xB = [], yB = [];//coordenadas bonus
+var xM = [], yM = [];
+var qtE = 5; //quantidade de estrelas
+var qt = 3; //quantidade de inimigos
+var qt1 = 2;//quantidade de inimigos nivel 1
+var qt2 = 2;//quantidade de inimigos nivel 2
+var qtB = 1; //quantidade de bonus
+var tela = 1;
+var danoDisparo = 0; //contador de dano sofrido ao inimigo 0
+var danoDisparo1 = 0; //contador de dano sofrido ao inimigo 1
+var danoDisparo2 = 0; //contador de dano sofrido ao inimigo 2
+var tempo = 0;
+var velI = []; //velocidade dos inimigos
+var velI1 = []; //velocidade dos inimigos de nivel 1
+var velI2 = []; //velocidade dos inimigos de nivel 2
+var velE = []; //velocidade das estrelas
+var velB = []; //velocidade do bonus
+var velD = 10;
+var barreiraDePontos = 100;
+var vida = 3, pontuacao = 0, nivel = 0; //informações do jogo
+var contFrames = 1, paraFrames = 0;
+var meteoro;
+var naveI0, naveI1, naveI2,player, bonus1;
+var rodando = [];
+
+function preload() { //imagens e som
+  naveI0 = loadImage('inimigo0.png');
+  naveI1 = loadImage('inimigo1.png');
+  naveI2 = loadImage('inimigo2.png');
+  player = loadImage('ship1.png');
+  bonus1 = loadImage('crys0.png');
+  for(i = 1; i < 17; i++){
+   	 rodando[i] = loadImage('asteroid'+i+'.png');
+  }
+}
+
+function setup() {
+  frameRate(30);
+  createCanvas(500, 400);
+  for(i = 0;i < 3; i++){
+	    xI[i] = random(10,475); //posição inicial dos inimigos
+	    yI[i] = -random(50,100);
+	    velI[i] = 4;
+  }
+  
+  for(h = 0; h < qt1; h++){
+	    xI1[h] = random(10,475); //posição inicial dos inimigos nivel 1
+	    yI1[h] = -random(200,500);
+	    velI1[h] = 0;
+  }
+  
+  for(k = 0; k < qt2; k++){
+	    xI2[k] = random(10,475); //posição inicial dos inimigos nivel 2
+	    yI2[k] = -random(300,650);
+	    velI2[k] = 0;
+  }
+  
+  for(j = 0; j < qtE; j++){
+	    xE[j] = random(10, 500); // posição inicial das estrelas
+	    yE[j] = -random(0, 100);
+	    velE[j] = 2+random(0,5);
+  }
+  
+  for(b = 0; b < qtB; b++){
+	    xB[b] = random(10,500); //posição inicial do bonus
+	    yB[b] = -random(5000,10000);
+	    velB[b] = 5;
+  }
+  
+  for ( i = 0; i < qtTiros; i++) {//tiros
+		tirosAtivos[i] = false;  
+		yD[i] = yP;
+		xD[i] = xP;
+	}
+  
+  for(z = 0; z < 2; z++){
+   	 xM[z] = random(10, 500);
+   	 yM[z] = -random(10,1000);
+  }
+}
+
+function draw() {
+  background(0);
+  //tela inicial do jogo
+  	if(tela == 1){
+    	for(z = 0; z < 2; z++){
+	    	meteoro = rodando[contFrames];
+	     	imageMode(CENTER);
+	     	image(meteoro, xM[z], yM[z]);
+	      	paraFrames++
+	      	if(paraFrames == 5){
+	        	contFrames++
+	        	paraFrames = 0;
+      		}
+      	if(contFrames > 16){
+        	contFrames = 1;
+      	}
+      		//ellipse(xM[z],yM[z],50,50);
+      		yM[z] = yM[z] + 2;
+      		if(yM[z] > 600){
+        		xM[z] = random(10,500);
+        		yM[z] = -random(100,1000);
+      		}
+    	}
+    	fill(200);
+    	textSize(15);
+    	text('Precione ENTER para iniciar o jogo.(Se acha que é capaz...)',60,200);
+    	if(keyIsDown(ENTER)){
+      		tela = 2;
+    	}
+  	}
+  
+  if(tela == 2){
+	  	clear();
+	  	background(0);
+	  	//estrelas
+	  	for(j = 0; j < qtE; j++){
+	    	fill(220)
+	    	ellipse(xE[j], yE[j],3,3);
+	    	yE[j] = yE[j] + velE[j];
+	    	if(yE[j] > 400){
+	      		yE[j] = -random(0,100);
+	      		xE[j] = random(0, 500);
+	    	}
+	  	}
+	  
+	  	//player
+	   	fill(0, 100, 10);
+		imageMode(CENTER); 
+	   	image(player, xP, yP);
+	   	//ellipse(xP, yP, 22, 22);
+	  
+	  	//inimigos
+		for(i = 0; i < qt; i++){
+		    imageMode(CENTER);
+		   	image(naveI0, xI[i], yI[i]);
+		   	//ellipse(xI[i], yI[i], 25, 25)
+		   	//movimento do inimigo 0
+		   	yI[i] = yI[i] + velI[i];
+	    	if(yI[i] > 400){
+	      		yI[i] = -random(50,100);
+	      		xI[i] = random(0,470);
+		   	}
+		}
+	    
+	    //movimento do inimigo 1
+	    if(nivel == 2 || nivel == 3 || nivel == 4 || nivel == 5){
+	     	for(h = 0; h < qt1; h++){
+		        fill(220,0,0);
+		        imageMode(CENTER);
+		        image(naveI1, xI1[h], yI1[h]);
+		        //ellipse(xI1[h], yI1[h], 22, 22);
+		        velI1[h] = 7;
+		        yI1[h] = yI1[h] + velI1[h];
+		        if(yI1[h] > 400){
+		    	    xI1[h] = random(0,475);
+		            yI1[h] = -random(200,500);
+	          	}
+	        }
+	   	}
+	    
+	   //movimento do inimigo 2
+	    if(nivel == 3 || nivel == 4 || nivel == 5){
+	     	for(k = 0; k < qt2; k++){
+		        fill(0,220,0);
+		        imageMode(CENTER);
+		        image(naveI2, xI2[k], yI2[k]);
+		        //ellipse(xI2[k], yI2[k], 50, 50);
+		        velI2[k] = 6;
+		        yI2[k] = yI2[k] + velI2[k];
+		        if(yI2[k] > 400){
+		            xI2[k] = random(0,475);
+		            yI2[k] = -random(200,500);
+	          	}
+	        }
+	   }
+	  
+	  //bonus
+	  for(b = 0; b < qtB; b++){
+		    fill(220)
+		    imageMode(CENTER);
+		    image(bonus1, xB[b], yB[b]);
+		    //ellipse(xB[b], yB[b], 10, 10);
+		    yB[b] = yB[b] + velB[b];
+		    if(yB[b] > 400){
+		      xB[b] = random(0,500);
+		      yB[b] = -random(6000,15000);
+		      }
+	  }
+	  
+	  //movimento do player
+	  if(keyIsDown(UP_ARROW)){
+		    if(yP > 25 ){
+		    	yP -= 7;
+	   		}
+	 	}
+	   if(keyIsDown(DOWN_ARROW)){
+	     if(yP < height-25){
+	     		yP += 7;
+	     }
+	    }
+	   if(keyIsDown(LEFT_ARROW)){
+		    if(xP > 28){
+		      xP -= 7;
+			}
+	   }
+	   if(keyIsDown(RIGHT_ARROW)){
+	    	if(xP < width-25){
+	    		xP += 7;
+	     	}
+	   	}
+	    
+	  //projetil
+	  if(keyIsDown(32) && tempoTiro < 0){
+	    tempoTiro = 5;
+	    for ( i = 0; i < qtTiros; i++) {
+			if ( tirosAtivos[i] ==  false ) {
+			  tirosAtivos[i] = true;
+			  xD[i] = xP;
+	          yD[i] = yP;
+			  break; 
+			} 
+		}
+	  }
+	  tempoTiro--; 
+	    
+	  for ( i = 0; i < qtTiros; i++) {
+		  if ( tirosAtivos[i] ) {
+				// tiros 
+				ellipse(xD[i], yD[i], 8, 8);
+				yD[i] = yD[i] - velD; 
+				if (yD[i] < 0) {
+					tirosAtivos[i] = false;
+				}
+		 	}  
+	  	}
+	  
+	  //informaçoes do jogo
+	  fill(200)
+	  text("Vidas: "+vida, 10,375)
+	  text("Pontuação: "+pontuacao, 220, 12)
+	  text("Nível: "+nivel, 10, 390)
+	  
+	  //colisoes com o player de inimigos nivel 0
+	  for(i = 0; i < qt; i++){
+		    if(dist(xI[i],yI[i],xP,yP) < 12.5+11)
+		    {
+		        xP = 200;
+		        yP = 370;
+		        yI[i] = -random(50,100);
+		        xI[i] = random(0,470);
+		        vida--;
+		   	}
+	  	}
+	  
+	  //colisoes com o player de inimigos nivel 1
+	  for(i = 0; i < qt1; i++){
+	    if(dist(xI1[i],yI1[i],xP,yP) < 11+11)
+	       {
+		       	xP = 200;
+		        yP = 370;
+		        yI1[i] = -random(50,100);
+		        xI1[i] = random(0,470);
+		        vida--;
+	       }
+	  	}
+	  
+	   //colisoes com o player de inimigos nivel 2
+	  for(i = 0; i < qt2; i++){
+		    if(dist(xI2[i],yI2[i],xP,yP) < 25+11){
+		        xP = 200;
+		        yP = 370;
+		        yI2[i] = -random(50,100);
+		        xI2[i] = random(0,470);
+		        vida--;
+		    }
+	  	}
+
+	  //colisao do disparo com inimigos nivel 0
+	    for(t = 0;t < qtTiros; t++){
+		    for(i = 0; i < qt; i++){
+		        if(dist(xI[i], yI[i], xD[t], yD[t]) < 4+12.5){
+		          	danoDisparo++;
+			        if(danoDisparo == 1){
+			          yI[i] = -random(50,100);
+			          xI[i] = random(0,470);
+			          pontuacao+=2;
+			          danoDisparo = 0;
+			        }
+	       		xD[t] = 0;
+	       		yD[t] = 0;
+	      		}
+	    	}
+	  	}
+	    
+	    //colisao do disparo com inimigos nivel 1
+	    for(t = 0; t < qtTiros; t++){
+		    for(i = 0; i < qt1; i++){
+		        if(dist(xI1[i], yI1[i], xD[t], yD[t]) < 11+4){
+		        danoDisparo1++;
+			        if(danoDisparo1 == 2){
+			            yI1[i] = -random(200,500);
+			            xI1[i] = random(0,470);
+			            pontuacao+=2;
+			            danoDisparo1 = 0;
+			        }
+		        	xD[t] = 0;
+		       		yD[t] = 0;
+		        }
+		      }
+	    }
+	    
+	   //colisao do disparo com inimigos nivel 2
+	    for(t = 0; t < qtTiros; t++){
+		    for(i = 0; i < qt2; i++){
+		        if(dist(xI2[i], yI2[i], xD[t], yD[t]) < 25+4){
+		          	danoDisparo2++;
+		          	if(danoDisparo2 == 3){
+			           	yI2[i] = -random(200,500);
+			            xI2[i] = random(0,470);
+			            pontuacao+=2;
+			            danoDisparo2 = 0;
+		          	}
+		        xD[t] = 0;
+		        yD[t] = 0;
+		        }
+		    }
+	    }
+	  
+	  //colisão com o bonus
+	  	for(b = 0; b < 1; b++){
+		    if(dist(xB[b], yB[b], xP, yP) < 5+11){
+		      	xB[b] = random(0,500);
+		      	yB[b] = -random(7000,15000);
+		      	vida++;
+                pontuacao += 5;
+		      	velD = velD + 1;
+		    }
+	  	}
+	    
+	  //niveis
+	 	if(pontuacao > barreiraDePontos){
+		    nivel++;
+		    barreiraDePontos = barreiraDePontos + 100;
+		    if(nivel == 1){
+		        for(i = 0; i < qt; i++){
+		        	velI[i] = velI[i] + 1.5;
+		        }
+		      
+		        for(j = 0; j < qtE; j++){
+		        	velE[j] = 2+random(1,6);
+		        }
+		    }
+		    if(nivel == 2){
+		      	for(i = 0; i < qt; i++){
+		        	velI[i] = velI[i] + 2;
+		      	}
+              
+                for(h = 0; h < qt1; h++){
+                  velI1[h] = velI1[h] + 1.5;
+                }
+		       	for(j = 0; j < qtE; j++){
+		        	velE[j] = 2+random(2,7);
+		      	}
+		    }
+		    if(nivel == 3){
+		      	for(i = 0; i < qt; i++){
+		      		velI[i] = velI[i] + 1.5;
+		      	}
+		      
+		      	for(h = 0; h < qt1; h++){
+		        	velI1[h] = velI1 + 1.5;
+		      	}
+              
+                for(k = 0; k < qt2; k++){
+                  velI2[k] = velI2[k] + 1.5;
+		      	}
+
+		      	for(j = 0; j < qtE; j++){
+		        	velE[j] = 2+random(3,8);
+		      	}
+		    }
+		    if(nivel == 4){
+		      	for(i = 0; i < qt; i++){
+		       		velI[i] = velI[i] + 1;
+		      	}
+		      
+		      	for(h = 0; h < qt1; h++){
+		        	velI1[h] = velI1 + 1.5;
+		      	}
+              
+                for(k = 0; k < qt2; k++){
+                  velI2[k] = velI2[k] + 1.5;
+		      	}
+
+		      	for(j = 0; j < qtE; j++){
+		        	velE[j] = 2+random(4,9);
+		      	}
+		    }
+		    if(nivel == 5){
+		      	for(i = 0; i < qt; i++){
+		        	velI[i] = velI[i] + 1;
+		      	}
+		      
+		       	for(h = 0; h < qt1; h++){
+		        	velI1[h] = velI1 + 1.5;
+		       	}
+              
+                for(k = 0; k < qt2; k++){
+                  velI2[k] = velI2[k] + 1.5;
+		      	}
+
+		      	for(j = 0; j < qtE; j++){
+		        	velE[j] = 2+random(5,10);
+		      	}
+		    }
+		    if(nivel > 5){
+		      	tela = 4;
+		    }
+	  	}
+
+		tempo++
+		text(tempo,20,100)
+		if(vida <= 0)
+	  	{
+	    	tela = 3;
+	  	}
+	}
+  
+  //reinicio de jogo
+	if(tela == 3){
+	    clear();
+	    background(0)
+	    fill(255,0,0);
+	    text('Que pena, você é ruim. HAHAHAHAH.\n pressione ENTER para jogar novamente!',100,200);
+	    if(keyIsDown(ENTER)){
+	       	tela = 2;
+	       	vida = 3;
+	       	pontuacao = 0;
+	       	nivel = 0;
+	       	barreiraDePontos = 10;
+	       
+	       	for(i = 0;i < qt; i++){
+	          	xI[i] = random(0,470); //posição inicial dos inimigos
+	          	yI[i] = -random(50,100);
+	          	velI[i] = 2;
+	      	}
+	    }
+  	}
+	if(tela == 4){
+	    clear();
+	    background(0);
+	    fill(0,0,220);
+	    text('Parabéns!! Voçê é melhor do que esperava!!',100,200);
+	    fill(220,0,0);
+	    text('Precione ENTER para jogar novamente.',120,220);
+	    if(keyIsDown(ENTER)){
+	       	tela = 2;
+	       	vida = 3;
+	       	pontuacao = 0;
+	       	nivel = 0;
+	       	barreiraDePontos = 10;
+	       
+	      	for(i = 0;i < qt; i++){
+	          	xI[i] = random(0,470); //posição inicial dos inimigos
+	          	yI[i] = -random(50,100);
+	          	velI[i] = 2;
+	        }
+
+	        for(h = 0; h < qt1; h++){
+	          	xI1[h] = random(10,475); //posição inicial dos inimigos nivel 1
+	          	yI1[h] = -random(200,500);
+	           	velI1[h] = 0;
+	        }
+	  
+	        for(k = 0; k < qt2; k++){
+		        xI2[k] = random(10,475); //posição inicial dos inimigos nivel 2
+		        yI2[k] = -random(300,650);
+		        velI2[k] = 0;
+	        }
+	  
+	        for(j = 0; j < qtE; j++){
+	          	xE[j] = random(10, 500); // posição inicial das estrelas
+	          	yE[j] = -random(0, 100);
+	          	velE[j] = 2+random(0,5);
+	        }
+	  
+	        for(b = 0; b < qtB; b++){
+	          	xB[b] = random(10,500); //posição inicial do bonus
+	          	yB[b] = -random(5000,10000);
+	          	velB[b] = 5;
+	        } 
+	    }
+	}
+}
